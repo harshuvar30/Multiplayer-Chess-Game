@@ -1,0 +1,10 @@
+import { WebSocketServer } from 'ws';
+import { GameManager } from './GameManager';
+
+const wss = new WebSocketServer({ port: 8080 });
+
+const gamemanager = new GameManager()
+wss.on('connection', (ws)=> {
+  gamemanager.addUser(ws)
+  ws.on('close', ()=>gamemanager.removeUser(ws))
+});

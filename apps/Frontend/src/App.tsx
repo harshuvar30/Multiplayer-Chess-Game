@@ -1,14 +1,17 @@
 
 import './App.css'
+import './theme.css'
 import { RecoilRoot } from 'recoil'; 
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from './Screen/Landing';
 import Game from './Screen/Game';
 import Login from './Screen/Login';
 import { Loader } from './Components/Loader';
-import ReactDOM from 'react-dom/client';
-
+import { Layout } from './layout';
+import { ThemesProvider } from './context/themeContext';
+import { Settings } from './Screen/Settings';
+import { Themes } from './Components/themes';
 
 
 function App() {
@@ -16,9 +19,9 @@ function App() {
     <div className="min-h-screen bg-bgMain text-textMain">  
       <RecoilRoot>
         <Suspense fallback={<Loader />}>
-          {/* <ThemesProvider> */}
+          <ThemesProvider>
             <AuthApp />
-          {/* </ThemesProvider> */}
+          </ThemesProvider>
         </Suspense>
       </RecoilRoot>
     </div>
@@ -27,19 +30,36 @@ function App() {
 
 
 function AuthApp() {
-  
   return (
-    <div className='bg-slate-900  h-screen'>
-     <BrowserRouter>
+    <BrowserRouter>
       <Routes>
-          <Route path="/" element={<Landing />}/>
-          <Route path="/login" element={<Login />} />
-          <Route path="/game" element={<Game />} />
+        <Route 
+          path="/" 
+          element={<Layout><Landing /></Layout>} 
+        />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+          <Layout>
+            <Game />
+           </Layout>
+          }
+        />
+        { <Route 
+          path='/settings' 
+          element={<Layout><Settings /></Layout>} 
+        >
+          <Route path="themes" element={<Themes />} />
+        </Route> }
       </Routes>
     </BrowserRouter>
-    </div>
-  )
+  );
 }
+
 
 
 export default App

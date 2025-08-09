@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import express from 'express'
-import { db } from './db'
 import passport from 'passport';
 import session from 'express-session';
 import authRoutes from './auth/authRoutes';
@@ -8,6 +7,13 @@ import cookieParser from 'cookie-parser'
 import cors from "cors"
 
 const app = express()
+
+
+app.use(cors({
+  origin: "http://localhost:5173", // Allow requests from your frontend
+  credentials: true,            // Allow sending cookies (important for auth)
+}));
+
 app.use(express.json());
 app.use(cookieParser())
 
@@ -15,16 +21,16 @@ app.use(session({
   secret: 'your-secret', // use a secure secret in production
   resave: false,
   saveUninitialized: false,
-  cookie:{secure:false, maxAge: 60*60}
+  cookie:{secure:false, maxAge: 60*60*1000}
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors({
-  origin: "http://localhost:5173", // Allow requests from your frontend
-  credentials: true,              // Allow sending cookies (important for auth)
-}));
+app.get('/test', async(req,res) => {
+  console.log('Test route hit!');
+  
+});
 
 app.use('/api/auth', authRoutes);
 
@@ -45,7 +51,7 @@ app.use('/api/auth', authRoutes);
 // }
 // })
 
-const PORT = process.env.PORT || 5000;
+const PORT =  5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -7,8 +7,8 @@ import { db } from '../db';
 import { error } from 'console';
 
 const router = express.Router();
-const JWT_SECRET = 'your-secret'
-const COOKIE_MAX_AGE = 60*60
+const JWT_SECRET = 'your_secret_key'
+const COOKIE_MAX_AGE = 24*60*60*1000
 interface userJwtClaims {
   userId: string;
   name: string;
@@ -44,9 +44,19 @@ const token = jwt.sign(
     token: token,
     isGuest: true,
   };
-  res.cookie('guest', token, { maxAge: COOKIE_MAX_AGE });
+  console.log('checking user details', UserDetails)
+  console.log('checking cookie age', COOKIE_MAX_AGE)
+  res.cookie('guest', token, 
+    {
+  maxAge: COOKIE_MAX_AGE,
+  domain: 'localhost',
+  httpOnly: true, 
+  sameSite: 'lax',   // Use 'lax' for dev (less restrictive)
+  secure: false  
+   });
   res.json(UserDetails);
 })
+
 router.get('/google',
     passport.authenticate('google',{scope:['profile','email']})
 )
@@ -54,7 +64,7 @@ router.get('/google',
 router.get('/google/callback',
     passport.authenticate('google', { 
     successRedirect: 'http://localhost:5173/game',
-    failureRedirect: '/api/auth/failure'
+    failureRedirect: '/failure'
      }),
 )
 
@@ -84,31 +94,46 @@ router.get('/logout',(req,res)=>{
         res.redirect('http://localhost:5173')
       }
     })
-})
-router.get('/refresh', async (req : Request, res: any) => {
-  const token = req.cookies.guest;
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as userJwtClaims;
-    const user = await db.user.findUnique({
+  })
+  router.get('/refresh', async (req : Request, res: any) => {
+    console.log("inside refresh route and checking if cookies exits or not ?", req.user, req.cookies)
+    console.log("inside refresh route and checking if cookies exits or not ?",  req.cookies)
+    console.log("checking req.cookies.guest", req?.cookies?.guest)
+   if (req.user) {
+    const user = req.user as UserDetails;
+    
+    
+    // Token is issued so it can be shared b/w HTTP and ws server
+    // Todo: Make this temporary and add refresh logic here
+
+    const userDb = await db.user.findFirst({
       where: {
-        id: decoded.userId,
+        id: user.id,
       },
     });
-    if (!user) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    const userDetails: UserDetails = {
+
+    const token = jwt.sign({ userId: user.id, name: userDb?.name }, JWT_SECRET);
+    res.json({
+      token,
       id: user.id,
-      name: user.name!,
-      isGuest: decoded.isGuest,
+      name: userDb?.name,
+    });
+  } else if (req.cookies && req.cookies.guest) {
+    const decoded = jwt.verify(req.cookies.guest, JWT_SECRET) as userJwtClaims;
+    const token = jwt.sign(
+      { userId: decoded.userId, name: decoded.name, isGuest: true },
+      JWT_SECRET,
+    );
+    let User: UserDetails = {
+      id: decoded.userId,
+      name: decoded.name,
+      token: token,
+      isGuest: true,
     };
-    res.json(userDetails);
-  } catch (error) {
-    console.error('Error refreshing token:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.cookie('guest', token, { maxAge: COOKIE_MAX_AGE });
+    res.json(User);
+  } else {
+    res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 })
 

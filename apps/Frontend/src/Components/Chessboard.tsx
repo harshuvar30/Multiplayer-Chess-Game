@@ -1,7 +1,7 @@
 import type { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import { memo, useEffect, useState, type MouseEvent } from "react";
 import Confetti from "react-confetti";
-import NumberNotation from "./chess-board/NumberNotation";
+import NumberNotation from "../components/chess-board/NumberNotation";
 import { useRecoilState } from "recoil";
 import { isBoardFlippedAtom, movesAtom, userSelectedMoveIndexAtom } from "@repo/store/chessBoard";
 import MoveSound from '/move-sound.wav'
@@ -9,8 +9,8 @@ import CaptureSound from '/capture-sound.wav'
 import { drawArrow } from "../utils/canvas";
 import { MOVE } from "../Screen/Game";
 import ChessSquare from "./chess-board/ChessSquare";
-import LetterNotation from "./chess-board/LetterNotation";
-import LegalMoveIndicator from "./chess-board/LegarMoveIndicator";
+import LetterNotation from "../components/chess-board/LetterNotation";
+import LegalMoveIndicator from "../components/chess-board/LegarMoveIndicator";
 
 
 export function isPromoting(chess: Chess, from: Square, to: Square) {

@@ -7,11 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from './Screen/Landing';
 import Game from './Screen/Game';
 import Login from './Screen/Login';
-import { Loader } from './Components/Loader';
+import { Loader } from './components/Loader';
 import { Layout } from './layout';
 import { ThemesProvider } from './context/themeContext';
 import { Settings } from './Screen/Settings';
-import { Themes } from './Components/themes';
+import { Themes } from './components/themes';
 
 
 function App() {

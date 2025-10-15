@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Button } from "../Components/Button"
+import { Button } from "../components/Button"
 import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import { userAtom } from '@repo/store/userAtom';

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-import { Button } from "../Components/Button"
-import { ChessBoard, isPromoting } from "../Components/ChessBoard"
+import { Button } from "../components/Button"
+import { ChessBoard, isPromoting } from "../components/ChessBoard"
 import { useSocket } from "../hooks/useSocket"
 import { Chess, Move } from "chess.js"
 import { useRecoilValue, useSetRecoilState } from "recoil"
@@ -8,11 +8,11 @@ import { movesAtom, userSelectedMoveIndexAtom } from "@repo/store/chessBoard"
 import { useNavigate, useParams } from "react-router-dom"
 import { useUser } from "@repo/store/useUser"
 import MoveSound from '/move-sound.wav'
-import GameEndModal from "../Components/GameEndModel"
-import { UserAvatar } from "../Components/UserAvatar"
-import { Waitopponent } from "../Components/ui/Waitopponent"
-import { ShareGame } from "../Components/ShareGame"
-import MovesTable from "../Components/MovesTable"
+import GameEndModal from "../components/GameEndModel"
+import { UserAvatar } from "../components/UserAvatar"
+import { Waitopponent } from "../components/ui/Waitopponent"
+import { ShareGame } from "../components/ShareGame"
+import MovesTable from "../components/MovesTable"
 
 export const INIT_GAME = 'init_game'
 export const MOVE = 'move'
@@ -46,9 +46,15 @@ export interface Metadata {
   whitePlayer: Player;
 }
 function Game() {
+  const user = useUser()
+  useEffect(()=>{
+    console.log("checking user value",user)
+    if(!user){
+      window.location.href = '/login'
+    }
+  },[user])
   const socket = useSocket();
   const {gameId } = useParams()
-  const user = useUser()
    const navigate = useNavigate();
   const [chess, _setChess] = useState(new Chess())
   const [board, setBoard] = useState(chess.board())
@@ -69,11 +75,6 @@ function Game() {
 
   },[userSelecetedMoveIndex])
 
-  useEffect(()=>{
-    if(!user){
-      window.location.href = '/login'
-    }
-  },[user])
   useEffect(()=>{
     if(!socket)
       return

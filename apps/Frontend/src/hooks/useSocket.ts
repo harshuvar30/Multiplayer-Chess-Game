@@ -5,8 +5,9 @@ const WS_URL = 'ws://localhost:8080'
 export const useSocket = ()=>{
     const [socket, setSocket]  = useState<WebSocket | null>(null);
     const user = useUser()
+    console.log("checking user token",  user.token)
     useEffect(() =>{
-        const ws = new WebSocket(`${WS_URL}?token=${user.token}`);
+        const ws = new WebSocket(`${WS_URL}?token=${user?.token}`);
 
         ws.onopen = () =>{
             setSocket(ws)
